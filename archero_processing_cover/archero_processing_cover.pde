@@ -1,5 +1,7 @@
-PImage archer, bow;
-int numOfMonsters = 6;
+PImage archer, bow, arrowImg, grass, carnivorous_plant, skeleton;
+//PImage archer, bow, arrowImg, grass, carnivorous_plant, skeleton;
+PImage archer_positions[] = new PImage[4];
+int numOfMonsters = 10;
 Monsters [] monsterArray = new Monsters[numOfMonsters];
 Archer a1;
 Arrow arrow;
@@ -7,25 +9,39 @@ Arrow arrow;
 void setup() {
   size(640, 480);
   imageMode(CENTER);
-  a1 = new Archer();
-  for (int i = 0; i <  numOfMonsters; i++) {
-    monsterArray[i] = new Monsters();
-  }
-  arrow = new Arrow();
+  archer_positions[0] = loadImage("archer-left.png");
+  archer_positions[1] = loadImage("archer-up.png");
+  archer_positions[2] = loadImage("archer-right.png");
+  archer_positions[3] = loadImage("archer-down.png");
 
-  archer = loadImage("archer.png");
-  bow = loadImage("bow.png");
+a1 = new Archer();
+
+for (int i = 0; i <  numOfMonsters; i ++) {
+  monsterArray[i] = new Monsters();
+}
+arrow = new Arrow();
+
+grass = loadImage("grass-bg.png");
+archer = archer_positions[0];
+//bow = loadImage("bow.png");
+arrowImg = loadImage("arrow.png");
+carnivorous_plant = loadImage("carnivorous-plant.png");
+skeleton = loadImage("skeleton.png");
 }
 
 void draw() {
   background(120);
+  image(grass, width/2, height/2);
   a1.showScore();
-
+  arrow.update();
+  if (arrow.cooldown <= 0 && key == ' ') {
+    arrow.shoot();
+  }
   playMatch();
 }
 
 void playMatch() {
-  for (int i = 0; i <  numOfMonsters; i++) {
+  for (int i = 0; i <  numOfMonsters; i ++) {
     if (monsterArray[i].health > 0) {
       monsterArray[i].update();
     }
@@ -37,25 +53,22 @@ void playMatch() {
     println("gameover");
     gameOver();
   }
-
-  arrow.update();
-  if (arrow.cooldown <= 0 && key == ' ') {
-    arrow.shoot();
-  }
 }
 
 void gameOver() {
   text("GAME OVER", width/2, height/2);
   if (keyPressed) {
-    a1.reset();
-    for (int i = 0; i <  numOfMonsters; i ++) {
-      monsterArray[i].reset();
+    if (key == ' ') {
+      a1.reset();
+      for (int i = 0; i <  numOfMonsters; i ++) {
+        monsterArray[i].reset();
+      }
     }
   }
 }
 
 class Archer {
-  int d, health, fireRate, posX, posY, score;
+  int d, health, fireRate, posX, posY, score, shotDirection=0;
   float velocityX, velocityY, v;
 
   Archer() {
@@ -63,11 +76,14 @@ class Archer {
     posX = width/2;
     posY = height/4;
     v = 3;
+    shotDirection = 0;
   }
 
   void update() {
     image(archer, posX, posY);
-    image(bow, posX, posY);
+    //image(bow, posX, posY);
+
+
     posY += velocityY;
     posX += velocityX;
   }
@@ -90,63 +106,62 @@ class Arrow {
   Arrow() {
     posX = a1.posX;
     posY = a1.posY;
-    v = 3;
+    v = 1;
   }
 
   void update() {
+    image(arrowImg, posX, posY);
     cooldown -= 1;
     posX += velocityX;
     posY += velocityY;
     println(posX, posY, velocityX, velocityY, cooldown);
-    if (direction == "UP") {
-      line(posX, posY, posX, posY - 10);
-    } else if (direction == "DOWN") {
-      line(posX, posY, posX, posY + 10);
-    } else if (direction == "LEFT") {
-      line(posX - 10, posY, posX, posY);
-    } else if (direction == "RIGHT") {
-      line(posX, posY, posX + 10, posY);
-    }
   }
 
   void shoot() {
+    image(arrowImg, posX, posY);
     cooldown = 120;
     posX = a1.posX;
     posY = a1.posY;
-    if (direction == "UP") {
-      velocityX = 0;
-      velocityY = -v;
-    } else if (direction == "DOWN") {
-      velocityX = 0;
-      velocityY = v;
-    } else if (direction == "LEFT") {
-      velocityX = -v;
-      velocityY = 0;
-    } else if (direction == "RIGHT") {
-      velocityX = v;
-      velocityY = 0;
+    if (arrow.direction == "UP") {
+      arrow.velocityX = 0;
+      arrow.velocityY = -v;
+    } else if (arrow.direction == "DOWN") {
+      arrow.velocityX = 0;
+      arrow.velocityY = v;
+    } else if (arrow.direction == "LEFT") {
+      arrow.velocityX = -v;
+      arrow.velocityY = 0;
+    } else if (arrow.direction == "RIGHT") {
+      arrow.velocityX = v;
+      arrow.velocityY = 0;
     }
   }
 }
 
 class Monsters {
-  int health, posX, posY;
-  float velocityX, velocityY, v, distToArcher;
-
+  int health, posX= int(random(50, width - 50)), posY= int(random(50, height - 50)), monsterType;
+  float velocityX, velocityY, v;
 
   Monsters() {
     health = 1;
-    distToArcher = sqrt(sq(posX - a1.posX) + sq(posY - a1.posY));
-    while (distToArcher < 200) {
-      posX = int(random(0, width));
-      posY = int(random(0, height));
+    monsterType = int(random(0, 10));
+    while (posX > width - 10 && posX < width + 10) {
+      posX = int(random(50, width - 50));
     }
-    v = 2;
+    while (posY > height - 10 && posY < height + 10) {
+      posY = int(random(50, height - 50));
+    }
+    v = 1;
   }
 
   void update() {
     fill(100);
-    rect(posX, posY, 20, 20);
+    if (monsterType < 6) {
+      image(carnivorous_plant, posX, posY);
+    } else {
+      image(skeleton, posX, posY);
+    }
+
     posX += velocityX;
     posY += velocityY;
     if (abs(posX - a1.posX) > abs(posY - a1.posY)) {
@@ -176,27 +191,31 @@ class Monsters {
 }
 
 void keyPressed() {
-  if (key == 'W' || key == 'w') {
+  if (key == 'W' || key == 'w' || keyCode == UP) {
     a1.velocityY = -a1.v;
     arrow.direction = "UP";
-  } else if (key == 'S' || key == 's') {
+    archer = archer_positions[1];
+  } else if (key == 'S' || key == 's' || keyCode == DOWN) {
     a1.velocityY = a1.v;
     arrow.direction = "DOWN";
+    archer = archer_positions[3];
   }
-  if (key == 'A' || key == 'a') {
+  if (key == 'A' || key == 'a' || keyCode == LEFT) {
     a1.velocityX = -a1.v;
     arrow.direction = "LEFT";
-  } else if (key == 'D' || key == 'd') {
+    archer = archer_positions[0];
+  } else if (key == 'D' || key == 'd' || keyCode == RIGHT) {
     a1.velocityX = a1.v;
     arrow.direction = "RIGHT";
+    archer = archer_positions[2];
   }
 }
 
 void keyReleased() {
-  if (key == 'W' || key == 'w' || key == 'S' || key == 's') {
+  if (key == 'W' || key == 'w' || key == 'S' || key == 's' || keyCode == UP || keyCode == DOWN) {
     a1.velocityY = 0;
   }
-  if (key == 'A' || key == 'a' || key == 'D' || key == 'd') {
+  if (key == 'A' || key == 'a' || key == 'D' || key == 'd' || keyCode == LEFT || keyCode == RIGHT) {
     a1.velocityX = 0;
   }
 }
