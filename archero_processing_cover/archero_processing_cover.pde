@@ -1,5 +1,4 @@
 PImage archer, bow;
-
 int numOfMonsters = 10;
 Monsters [] monsterArray = new Monsters[numOfMonsters];
 Archer a1;
@@ -26,7 +25,6 @@ void draw() {
     arrow.shoot();
   }
   playMatch();
-  println(arrow.posX, arrow.posY);
 }
 
 void playMatch() {
@@ -55,7 +53,7 @@ void gameOver() {
 }
 
 class Archer {
-  int health, fireRate, posX, posY, score;
+  int d, health, fireRate, posX, posY, score;
   float velocityX, velocityY, v;
 
   Archer() {
@@ -85,11 +83,12 @@ class Archer {
 
 class Arrow {
   float cooldown, velocityX, velocityY, v;
+  String direction;
   int posX, posY;
   Arrow() {
     posX = a1.posX;
     posY = a1.posY;
-    v = 3;
+    v = 1;
   }
 
   void update() {
@@ -103,13 +102,25 @@ class Arrow {
     cooldown = 120;
     posX = a1.posX;
     posY = a1.posY;
-    velocityY = v;
+    if (arrow.direction == "UP") {
+      arrow.velocityX = 0;
+      arrow.velocityY = -v;
+    } else if (arrow.direction == "DOWN") {
+      arrow.velocityX = 0;
+      arrow.velocityY = v;
+    } else if (arrow.direction == "LEFT") {
+      arrow.velocityX = -v;
+      arrow.velocityY = 0;
+    } else if (arrow.direction == "RIGHT") {
+      arrow.velocityX = v;
+      arrow.velocityY = 0;
+    }
   }
 }
 
 class Monsters {
   int health, posX, posY;
-  float velocity, v;
+  float velocityX, velocityY, v;
 
   Monsters() {
     health = 1;
@@ -119,11 +130,33 @@ class Monsters {
     while (posY > height - 10 && posY < height + 10) {
       posY = int(random(height - 50, height + 50));
     }
-    v = 3;
+    v = 2;
   }
 
   void update() {
-    //fazer um vetor pro monstro andar em direção ao personagem
+    fill(100);
+    rect(posX, posY, 20, 20);
+    posX += velocityX;
+    posY += velocityY;
+    if (abs(posX - a1.posX) > abs(posY - a1.posY)) {
+      velocityY = 0;
+      if (posX > a1.posX) {
+        velocityX = -v;
+      } else if (posX < a1.posX) {
+        velocityX = v;
+      } else {
+        velocityX = 0;
+      }
+    } else {
+      velocityX = 0;
+      if (posY > a1.posY) {
+        velocityY = -v;
+      } else if (posY < a1.posY) {
+        velocityY = v;
+      } else {
+        velocityY = 0;
+      }
+    }
   }
 
   void reset() {
@@ -134,13 +167,17 @@ class Monsters {
 void keyPressed() {
   if (key == 'W' || key == 'w') {
     a1.velocityY = -a1.v;
+    arrow.direction = "UP";
   } else if (key == 'S' || key == 's') {
     a1.velocityY = a1.v;
+    arrow.direction = "DOWN";
   }
   if (key == 'A' || key == 'a') {
     a1.velocityX = -a1.v;
+    arrow.direction = "LEFT";
   } else if (key == 'D' || key == 'd') {
     a1.velocityX = a1.v;
+    arrow.direction = "RIGHT";
   }
 }
 
