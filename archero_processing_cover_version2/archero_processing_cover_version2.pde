@@ -111,7 +111,7 @@ class Monster {
 
 class Arrow {
   float xposIn, xposAt, yposIn, yposAt, speed=5.0;
-  int shotH=20, shotW=5;
+  int shotH=45, shotW=6;
 
   Arrow(float x, float y) {
     xposIn = x;
@@ -132,11 +132,23 @@ class Arrow {
       collisionDetected = false;
     } //Add quando tiro acertar um inimigo
     image(arrow, xposAt+30, yposAt-shotH);
+    /*yposAt+=speed;
+    if (yposAt > height) {
+      yposAt = yposIn;
+      xposAt = xposIn;
+    } else if (collisionDetected == true) {
+      yposAt = yposIn;
+      xposAt = xposIn;
+      collisionDetected = false;
+    } //Add quando tiro acertar um inimigo
+    image(arrow, xposAt+30, yposAt+shotH);
+    */
   }
+  
 }
 class Archer {
-  float xpos=width/2, ypos=height-100, speed=3.0;
-  int naveH=20, naveW=50;
+  float xpos=width/2, ypos=height-100, speed=4.0;
+  int archerH=97, archerW=65;
   Arrow a1 = new Arrow(xpos, ypos);
 
   Archer(float x) {
@@ -156,12 +168,18 @@ class Archer {
         ypos+=speed;
       }
     }
-    if (xpos > width-(naveW/2)) {
-      xpos = width-(naveW/2);
-    } else if (xpos < naveW/2) {
-      xpos = naveW/2;
+    if (xpos > width-(archerW)) {
+      xpos = width-(archerW);
+    } else if (xpos < 0) {
+      xpos = 0;
+    }
+    if (ypos > height-(archerH)) {
+      ypos = height-(archerH);
+    } else if (ypos < height/12) {
+      ypos = height/12;
     }
     image(archer, xpos, ypos);
+    a1.yposIn = ypos;
   }
 
   void shotting(float xpos) {
