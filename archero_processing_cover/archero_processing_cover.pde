@@ -3,6 +3,7 @@ PImage archer, bow;
 int numOfMonsters = 10;
 Monsters [] monsterArray = new Monsters[numOfMonsters];
 Archer a1;
+Arrow arrow;
 
 void setup() {
   size(640, 480);
@@ -11,6 +12,7 @@ void setup() {
   for (int i = 0; i <  numOfMonsters; i ++) {
     monsterArray[i] = new Monsters();
   }
+  arrow = new Arrow();
 
   archer = loadImage("archer.png");
   bow = loadImage("bow.png");
@@ -19,7 +21,11 @@ void setup() {
 void draw() {
   background(120);
   a1.showScore();
+  if (arrow.cooldown == 0) {
+    arrow.shoot();
+  }
   playMatch();
+  println(arrow.posX, arrow.posY);
 }
 
 void playMatch() {
@@ -76,12 +82,38 @@ class Archer {
   }
 }
 
-class Arrows {
-  float velocityX, velocityY;
-  Arrows() {
+class Arrow {
+  float cooldown, velocityX, velocityY, v;
+  int posX, posY;
+  Arrow() {
+    cooldown = 120;
+    posX = a1.posX;
+    posY = a1.posY;
   }
 
   void update() {
+    cooldown -= 1;
+    posX += velocityX;
+    posY += velocityY;
+  }
+
+  void shoot() {
+    cooldown = 120;
+    posX = a1.posX;
+    posY = a1.posY;
+    if (key == 'W' || key == 'w') {
+      velocityX = 0;
+      velocityY = -v;
+    } else if (key == 'S' || key == 's') {
+      velocityX = 0;
+      velocityY = v;
+    } else if (key == 'A' || key == 'a') {
+      velocityX = -v;
+      velocityY = 0;
+    } else if (key == 'D' || key == 'd') {
+      velocityX = 0;
+      velocityY = v;
+    }
   }
 }
 
