@@ -21,7 +21,8 @@ void setup() {
 void draw() {
   background(120);
   a1.showScore();
-  if (arrow.cooldown == 0) {
+  arrow.update();
+  if (arrow.cooldown <= 0 && key == ' ') {
     arrow.shoot();
   }
   playMatch();
@@ -86,39 +87,29 @@ class Arrow {
   float cooldown, velocityX, velocityY, v;
   int posX, posY;
   Arrow() {
-    cooldown = 120;
     posX = a1.posX;
     posY = a1.posY;
+    v = 3;
   }
 
   void update() {
     cooldown -= 1;
     posX += velocityX;
     posY += velocityY;
+    println(posX, posY, velocityX, velocityY, cooldown);
   }
 
   void shoot() {
     cooldown = 120;
     posX = a1.posX;
     posY = a1.posY;
-    if (key == 'W' || key == 'w') {
-      velocityX = 0;
-      velocityY = -v;
-    } else if (key == 'S' || key == 's') {
-      velocityX = 0;
-      velocityY = v;
-    } else if (key == 'A' || key == 'a') {
-      velocityX = -v;
-      velocityY = 0;
-    } else if (key == 'D' || key == 'd') {
-      velocityX = 0;
-      velocityY = v;
-    }
+    velocityY = v;
   }
 }
 
 class Monsters {
-  int health, posX, posY, velocity, v;
+  int health, posX, posY;
+  float velocity, v;
 
   Monsters() {
     health = 1;
@@ -132,9 +123,11 @@ class Monsters {
   }
 
   void update() {
+    //fazer um vetor pro monstro andar em direção ao personagem
   }
 
   void reset() {
+    //fazer uma colisão com o jogador
   }
 }
 
