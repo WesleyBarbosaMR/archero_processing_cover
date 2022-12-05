@@ -1,5 +1,5 @@
 PImage archer, bow;
-int numOfMonsters = 10;
+int numOfMonsters = 6;
 Monsters [] monsterArray = new Monsters[numOfMonsters];
 Archer a1;
 Arrow arrow;
@@ -8,7 +8,7 @@ void setup() {
   size(640, 480);
   imageMode(CENTER);
   a1 = new Archer();
-  for (int i = 0; i <  numOfMonsters; i ++) {
+  for (int i = 0; i <  numOfMonsters; i++) {
     monsterArray[i] = new Monsters();
   }
   arrow = new Arrow();
@@ -20,15 +20,12 @@ void setup() {
 void draw() {
   background(120);
   a1.showScore();
-  arrow.update();
-  if (arrow.cooldown <= 0 && key == ' ') {
-    arrow.shoot();
-  }
+
   playMatch();
 }
 
 void playMatch() {
-  for (int i = 0; i <  numOfMonsters; i ++) {
+  for (int i = 0; i <  numOfMonsters; i++) {
     if (monsterArray[i].health > 0) {
       monsterArray[i].update();
     }
@@ -39,6 +36,11 @@ void playMatch() {
   } else {
     println("gameover");
     gameOver();
+  }
+
+  arrow.update();
+  if (arrow.cooldown <= 0 && key == ' ') {
+    arrow.shoot();
   }
 }
 
@@ -88,7 +90,7 @@ class Arrow {
   Arrow() {
     posX = a1.posX;
     posY = a1.posY;
-    v = 1;
+    v = 3;
   }
 
   void update() {
@@ -96,39 +98,48 @@ class Arrow {
     posX += velocityX;
     posY += velocityY;
     println(posX, posY, velocityX, velocityY, cooldown);
+    if (direction == "UP") {
+      line(posX, posY, posX, posY - 10);
+    } else if (direction == "DOWN") {
+      line(posX, posY, posX, posY + 10);
+    } else if (direction == "LEFT") {
+      line(posX - 10, posY, posX, posY);
+    } else if (direction == "RIGHT") {
+      line(posX, posY, posX + 10, posY);
+    }
   }
 
   void shoot() {
     cooldown = 120;
     posX = a1.posX;
     posY = a1.posY;
-    if (arrow.direction == "UP") {
-      arrow.velocityX = 0;
-      arrow.velocityY = -v;
-    } else if (arrow.direction == "DOWN") {
-      arrow.velocityX = 0;
-      arrow.velocityY = v;
-    } else if (arrow.direction == "LEFT") {
-      arrow.velocityX = -v;
-      arrow.velocityY = 0;
-    } else if (arrow.direction == "RIGHT") {
-      arrow.velocityX = v;
-      arrow.velocityY = 0;
+    if (direction == "UP") {
+      velocityX = 0;
+      velocityY = -v;
+    } else if (direction == "DOWN") {
+      velocityX = 0;
+      velocityY = v;
+    } else if (direction == "LEFT") {
+      velocityX = -v;
+      velocityY = 0;
+    } else if (direction == "RIGHT") {
+      velocityX = v;
+      velocityY = 0;
     }
   }
 }
 
 class Monsters {
   int health, posX, posY;
-  float velocityX, velocityY, v;
+  float velocityX, velocityY, v, distToArcher;
+
 
   Monsters() {
     health = 1;
-    while (posX > width - 10 && posX < width + 10) {
-      posX = int(random(width - 50, width + 50));
-    }
-    while (posY > height - 10 && posY < height + 10) {
-      posY = int(random(height - 50, height + 50));
+    distToArcher = sqrt(sq(posX - a1.posX) + sq(posY - a1.posY));
+    while (distToArcher < 200) {
+      posX = int(random(0, width));
+      posY = int(random(0, height));
     }
     v = 2;
   }
